@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vòng Xoáy Ống Khói Dò Bài - Lớp 12A4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+      user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 55%, #131b3a 0%, #070a17 70%, #03040a 100%);
+      color: #f8fafc;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    /* Hiệu ứng ống khói phát sáng */
+    .chimney-container {
+      position: relative;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      transition: transform 0.3s ease;
+    }
+    .chimney-cap {
+      width: 230px;
+      height: 30px;
+      background: linear-gradient(90deg, #1e293b 0%, #475569 30%, #94a3b8 50%, #475569 70%, #1e293b 100%);
+      border: 3px solid #38bdf8;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+    }
+    .chimney-neck {
+      width: 175px;
+      height: 92px;
+      background: linear-gradient(90deg, #0f172a 0%, #334155 50%, #0f172a 100%);
+      border-left: 3px solid #38bdf8;
+      border-right: 3px solid #38bdf8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 -20px 35px rgba(0, 0, 0, 0.9);
+    }
+    .chimney-mouth {
+      width: 195px;
+      height: 44px;
+      margin-top: -22px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, #000000 35%, #f43f5e 78%, #38bdf8 100%);
+      box-shadow: 0 8px 35px rgba(244, 63, 94, 0.85), 0 0 60px rgba(56, 189, 248, 0.9);
+      transition: all 0.25s ease;
+    }
+    .chimney-sucking .chimney-mouth {
+      transform: scale(1.28);
+      box-shadow: 0 0 80px #f43f5e, 0 0 130px #38bdf8, inset 0 0 25px #ffffff;
+    }
+    .chimney-sucking {
+      animation: chimneyShake 0.12s infinite alternate;
+    }
+    @keyframes chimneyShake {
+      0% { transform: translateX(-3px) scale(1.02); }
+      100% { transform: translateX(3px) scale(1.02); }
+    }
+    /* Nút bấm kích hoạt vòng xoáy */
+    .btn-vortex {
+      background: linear-gradient(135deg, #ff0844 0%, #ff4e50 50%, #f9d423 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+      box-shadow: 0 0 30px rgba(255, 8, 68, 0.75), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-vortex:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 50px rgba(255, 8, 68, 1), 0 0 80px rgba(249, 212, 35, 0.6);
+    }
+    .btn-vortex:active:not(:disabled) {
+      transform: translateY(1px) scale(0.98);
+    }
+    .btn-vortex:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Hiệu ứng popup học sinh được gọi */
+    .victim-modal-card {
+      animation: modalZoomOutFromChimney 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes modalZoomOutFromChimney {
+      0% {
+        opacity: 0;
+        transform: translateY(-240px) scale(0.25);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    /* Thanh cuộn đẹp */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #38bdf8;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
+
+  <aside id="sidebarPanel" class="w-full md:w-88 lg:w-96 bg-slate-900/90 border-r border-cyan-500/30 backdrop-blur-xl flex flex-col justify-between p-4 z-30 transition-all duration-300 shrink-0">
+    <!-- Header Lớp 12A4 -->
+    <div>
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-3 mb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+            <i class="fa-solid fa-tornado text-slate-950 text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-rose-400 uppercase">
+              LỚP 12A4
+            </h1>
+            <p class="text-xs text-slate-400 font-semibold">Vòng Xoáy Ống Khói Dò Bài</p>
+          </div>
+        </div>
+        <button onclick="toggleMute()" id="muteBtn" title="Bật/Tắt âm thanh" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 flex items-center justify-center border border-slate-700 transition">
+          <i class="fa-solid fa-volume-high" id="muteIcon"></i>
+        </button>
+      </div>
+
+      <!-- Ô nhập danh sách học sinh do Giáo viên cung cấp -->
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="studentTextarea" class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-users"></i> Danh sách trong vòng xoáy (<span id="remainingCountBadge" class="text-amber-300">0</span>)
+          </label>
+          <button onclick="clearStudentInput()" class="text-[11px] text-slate-400 hover:text-rose-400 transition font-semibold">
+            <i class="fa-solid fa-eraser"></i> Xóa trắng để dán
+          </button>
+        </div>
+        <textarea
+          id="studentTextarea"
+          rows="7"
+          on selectstart="event.stopPropagation()"
+          class="w-full rounded-xl bg-slate-950/90 border border-cyan-500/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm text-white p-3 outline-none resize-none leading-relaxed font-medium select-text"
+          placeholder="Giáo viên dán danh sách học sinh lớp 12A4 vào đây (mỗi học sinh 1 dòng)..."
+        >Nguyễn Minh An
+Trần Hoàng Bách
+Lê Ngọc Bích
+Phạm Quốc Cường
+Hoàng Thị Dung
+Vũ Tuấn Đạt
+Đặng Thu Hà
+Bùi Gia Huy
+Đỗ Khánh Linh
+Ngô Bảo Long
+Dương Thảo My
+Lý Hoàng Nam
+Mai Kim Ngân
+Trương Phú Quý
+Phan Thanh Thảo
+Nguyễn Đức Toàn
+Lê Phương Trang
+Hoàng Minh Tuấn
+Phạm Khánh Vy
+Đinh Hải Yến</textarea>
+
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button onclick="applyRosterFromInput()" class="py-2 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 border border-cyan-400/50 font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-rotate"></i> Nạp Danh Sách
+          </button>
+          <button onclick="restoreCalledToVortex()" class="py-2 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-400 hover:text-slate-950 text-amber-300 border border-amber-400/50 font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-arrow-rotate-left"></i> Khôi Phục Tất Cả
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách học sinh đã dò bài (Đã bị loại khỏi vòng xoáy) -->
+    <div class="flex-1 flex flex-col min-h-0 mt-1">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-fire-flame-curved"></i> Đã dò bài & Loại tên (<span id="calledCountBadge">0</span>)
+        </span>
+      </div>
+      <div id="calledListBox" class="flex-1 bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 overflow-y-auto space-y-1.5 text-sm">
+        <div class="text-slate-500 text-xs italic text-center py-6">
+          Chưa có học sinh nào bị hút vào ống khói...
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer hướng dẫn nhanh -->
+    <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+      <span><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i>Tự động lưu danh sách</span>
+      <button onclick="toggleFullScreen()" class="hover:text-cyan-300 font-semibold transition">
+        <i class="fa-solid fa-expand mr-1"></i>Toàn màn hình
+      </button>
+    </div>
+  </aside>
+
+  <main id="mainStage" class="flex-1 relative flex flex-col items-center justify-between overflow-hidden">
+    <!-- Nút đóng/mở thanh danh sách để trình chiếu rộng hơn -->
+    <button
+      onclick="toggleSidebar()"
+      class="absolute top-4 left-4 z-20 px-3.5 py-2 rounded-xl bg-slate-900/85 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-2 shadow-lg transition"
+    >
+      <i class="fa-solid fa-bars-staggered"></i>
+      <span id="toggleSidebarText">Ẩn bảng DS</span>
+    </button>
+
+    <!-- Huy hiệu Lớp 12A4 góc phải trên -->
+    <div class="absolute top-4 right-4 z-20 flex items-center gap-3 bg-slate-900/85 border border-cyan-500/30 px-4 py-2 rounded-xl shadow-lg">
+      <div class="text-right">
+        <div class="text-xs text-slate-400 font-semibold">SĨ SỐ CÒN TRONG XOÁY</div>
+        <div class="text-lg font-black text-cyan-300 leading-tight"><span id="topRemainStat">20</span> học sinh</div>
+      </div>
+      <div class="w-10 h-10 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-black">
+        12A4
+      </div>
+    </div>
+
+    <!-- ỐNG KHÓI HÚT HỌC SINH Ở ĐỈNH TRUNG TÂM -->
+    <div id="chimneyElement" class="chimney-container mt-2">
+      <div class="chimney-cap"></div>
+      <div class="chimney-neck">
+        <span class="text-[11px] font-extrabold tracking-widest text-cyan-300 uppercase">ỐNG KHÓI DÒ BÀI</span>
+        <span class="text-lg font-black text-amber-300 tracking-wider drop-shadow">LỚP 12A4</span>
+      </div>
+      <div class="chimney-mouth"></div>
+    </div>
+
+    <!-- CANVAS VÒNG XOÁY CỰC MẠNH -->
+    <canvas id="vortexCanvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+
+    <!-- THANH ĐIỀU KHIỂN DƯỚI ĐÁY -->
+    <div class="relative z-20 mb-6 flex flex-col sm:flex-row items-center gap-4 bg-slate-950/85 border border-cyan-500/40 px-7 py-3.5 rounded-full shadow-2xl backdrop-blur-md">
+      <div class="flex items-center gap-2.5">
+        <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping" id="statusDot"></span>
+        <span id="statusBanner" class="text-sm sm:text-base font-bold text-cyan-200 tracking-wide">
+          Sẵn sàng kích hoạt vòng xoáy 12A4!
+        </span>
+      </div>
+
+      <button
+        id="spinButton"
+        onclick="triggerExtremeVortex()"
+        class="btn-vortex text-white font-black text-base sm:text-lg px-8 py-3.5 rounded-full tracking-wider uppercase flex items-center gap-3"
+      >
+        <i class="fa-solid fa-hurricane animate-spin"></i>
+        <span>XOÁY CỰC MẠNH & HÚT TÊN</span>
+      </button>
+    </div>
+  </main>
+
+  <div
+    id="calledModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4"
+  >
+    <div class="victim-modal-card w-full max-w-2xl rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-cyan-400 shadow-[0_0_90px_rgba(56,189,248,0.45)] p-6 sm:p-8 text-center relative overflow-hidden">
+      <!-- Ánh sáng trang trí -->
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-rose-500/25 blur-3xl pointer-events-none"></div>
+
+      <div class="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-300 text-xs sm:text-sm font-extrabold uppercase tracking-widest mb-4">
+        <i class="fa-solid fa-fire"></i> ĐÃ BỊ HÚT VÀO ỐNG KHÓI 12A4 <i class="fa-solid fa-fire"></i>
+      </div>
+
+      <p class="text-slate-300 text-sm sm:text-base font-semibold mb-1">Xin mời học sinh có tên sau lên bảng dò bài:</p>
+
+      <!-- TÊN HỌC SINH ĐƯỢC GỌI LỚN RÕ TRÊN MÁY CHIẾU -->
+      <div
+        id="calledStudentDisplay"
+        class="my-4 py-6 px-4 rounded-2xl bg-slate-950/90 border border-amber-400/50 shadow-inner text-3xl sm:text-5xl md:text-6xl font-black text-amber-300 tracking-wide drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]"
+      >
+        NGUYỄN MINH AN
+      </div>
+
+      <!-- BỘ ĐẾM THỜI GIAN DÒ BÀI TÙY CHỌN CHO GIÁO VIÊN -->
+      <div class="my-5 flex flex-wrap items-center justify-center gap-3 bg-slate-800/60 border border-slate-700 rounded-2xl p-3">
+        <div class="flex items-center gap-2 text-cyan-300 font-bold text-sm">
+          <i class="fa-solid fa-stopwatch text-lg"></i>
+          <span>Thời gian dò bài:</span>
+        </div>
+        <span id="timerDisplay" class="font-mono text-2xl font-black text-white bg-slate-950 px-4 py-1 rounded-xl border border-slate-700">
+          00:00
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button onclick="toggleTimer()" id="timerToggleBtn" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition">
+            <i class="fa-solid fa-play mr-1"></i>Bấm giờ
+          </button>
+          <button onclick="resetTimer()" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold transition">
+            Đặt lại
+          </button>
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-emerald-300 font-semibold mb-6">
+        <i class="fa-solid fa-circle-info mr-1"></i>
+        Khi bấm <strong>"Hoàn thành & Loại tên"</strong>, em này sẽ được đưa ra khỏi vòng xoáy để không bị gọi trùng ở lượt sau.
+      </p>
+
+      <!-- NÚT HÀNH ĐỘNG SAU KHI DÒ BÀI -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+        <button
+          onclick="confirmRemoveAndSpinNext()"
+          class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-base tracking-wide shadow-lg shadow-rose-500/30 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-forward-fast"></i>
+          <span>LOẠI TÊN & XOÁY TIẾP EM KHÁC</span>
+        </button>
+
+        <button
+          onclick="confirmRemoveOnly()"
+          class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-check-double"></i>
+          <span>HOÀN THÀNH & LOẠI TÊN</span>
+        </button>
+
+        <button
+          onclick="keepStudentInVortex()"
+          title="Giữ học sinh này lại trong vòng xoáy (nếu vắng mặt)"
+          class="w-full sm:w-auto px-4 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm border border-slate-600 transition"
+        >
+          Giữ lại tên (Vắng)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================== ÂM THANH SỐNG ĐỘNG (WEB AUDIO API) ==================
+    let audioCtx = null;
+    let isMuted = false;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      const icon = document.getElementById('muteIcon');
+      if (isMuted) {
+        icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+      } else {
+        icon.className = 'fa-solid fa-volume-high text-cyan-400';
+      }
+    }
+
+    // Âm thanh lốc xoáy tăng tốc cực mạnh
+    function playVortexAccelerateSound() {
+      if (isMuted) return;
+      ensureAudio();
+      const now = audioCtx.currentTime;
+
+      // Tiếng gió rít trầm + cao
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'triangle';
+
+      osc1.frequency.setValueAtTime(65, now);
+      osc1.frequency.exponentialRampToValueAtTime(480, now + 3.0);
+      osc1.frequency.exponentialRampToValueAtTime(980, now + 4.1);
+
+      osc2.frequency.setValueAtTime(110, now);
+      osc2.frequency.exponentialRampToValueAtTime(720, now + 3.0);
+      osc2.frequency.exponentialRampToValueAtTime(1450, now + 4.1);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 2.8);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 4.3);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 4.3);
+      osc2.stop(now + 4.3);
+    }
+
+    // Âm thanh hút tọt vào ống khói và nổ pháo hoa
+    function playChimneyCaptureSound() {
+      if (isMuted) return;
+      ensureAudio();
+      const now = audioCtx.currentTime;
+
+      // Tiếng hút tụt áp
+      const suckOsc = audioCtx.createOscillator();
+      const suckGain = audioCtx.createGain();
+      suckOsc.type = 'sine';
+      suckOsc.frequency.setValueAtTime(880, now);
+      suckOsc.frequency.exponentialRampToValueAtTime(65, now + 0.45);
+
+      suckGain.gain.setValueAtTime(0.35, now);
+      suckGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+      suckOsc.connect(suckGain);
+      suckGain.connect(audioCtx.destination);
+      suckOsc.start(now);
+      suckOsc.stop(now + 0.5);
+
+      // Tiếng chuông vinh danh học sinh lên bảng
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, idx) => {
+        const bell = audioCtx.createOscillator();
+        const bellGain = audioCtx.createGain();
+        bell.type = 'triangle';
+        bell.frequency.setValueAtTime(freq, now + 0.25 + idx * 0.09);
+
+        bellGain.gain.setValueAtTime(0.2, now + 0.25 + idx * 0.09);
+        bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9 + idx * 0.09);
+
+        bell.connect(bellGain);
+        bellGain.connect(audioCtx.destination);
+        bell.start(now + 0.25 + idx * 0.09);
+        bell.stop(now + 0.95 + idx * 0.09);
+      });
+    }
+
+    let activeStudents = [];
+    let calledStudents = [];
+    let currentSelectedStudent = null;
+
+    // Bộ đếm giờ dò bài trên bảng
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function formatTime(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerToggleBtn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i>Tiếp tục';
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+        }, 1000);
+        btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i>Tạm dừng';
+      }
+    }
+
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerSeconds = 0;
+      document.getElementById('timerDisplay').textContent = '00:00';
+      document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-play mr-1"></i>Bấm giờ';
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebarPanel');
+      const txt = document.getElementById('toggleSidebarText');
+      sb.classList.toggle('hidden');
+      txt.textContent = sb.classList.contains('hidden') ? 'Hiện bảng DS 12A4' : 'Ẩn bảng DS';
+      setTimeout(resizeCanvas, 50);
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function clearStudentInput() {
+      const area = document.getElementById('studentTextarea');
+      area.value = '';
+      area.focus();
+    }
+
+    // Nạp danh sách từ ô nhập của giáo viên
+    function applyRosterFromInput() {
+      const rawText = document.getElementById('studentTextarea').value;
+      const parsed = rawText
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      activeStudents = [...parsed];
+      vortexState = 'IDLE';
+      rebuildVortexCards();
+      refreshRosterUI();
+      setStatusBanner(`Đã nạp ${activeStudents.length} học sinh lớp 12A4 vào vòng xoáy!`);
+    }
+
+    // Khôi phục toàn bộ học sinh đã dò quay lại vòng xoáy
+    function restoreCalledToVortex() {
+      if (calledStudents.length > 0) {
+        const restoredNames = calledStudents.map(item => item.name);
+        activeStudents = [...activeStudents, ...restoredNames];
+        calledStudents = [];
+        document.getElementById('studentTextarea').value = activeStudents.join('\n');
+        rebuildVortexCards();
+        refreshRosterUI();
+        setStatusBanner('Đã khôi phục toàn bộ học sinh 12A4 trở lại vòng xoáy!');
+      } else {
+        applyRosterFromInput();
+      }
+    }
+
+    function setStatusBanner(msg) {
+      document.getElementById('statusBanner').textContent = msg;
+    }
+
+    function refreshRosterUI() {
+      document.getElementById('remainingCountBadge').textContent = activeStudents.length;
+      document.getElementById('topRemainStat').textContent = activeStudents.length;
+      document.getElementById('calledCountBadge').textContent = calledStudents.length;
+
+      const spinBtn = document.getElementById('spinButton');
+      spinBtn.disabled = activeStudents.length === 0 || vortexState !== 'IDLE';
+
+      const calledBox = document.getElementById('calledListBox');
+      if (calledStudents.length === 0) {
+        calledBox.innerHTML = `
+          <div class="text-slate-500 text-xs italic text-center py-6">
+            Chưa có học sinh nào bị hút vào ống khói...
+          </div>
+        `;
+      } else {
+        calledBox.innerHTML = calledStudents
+          .map(
+            (item, idx) => `
+            <div class="flex items-center justify-between bg-rose-500/15 border-l-4 border-rose-500 rounded-lg px-3 py-2">
+              <div class="truncate pr-2">
+                <span class="text-xs font-bold text-rose-300 mr-1.5">#${idx + 1}</span>
+                <span class="font-bold text-white text-sm">${item.name}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-[10px] bg-rose-500/30 text-rose-200 px-2 py-0.5 rounded font-semibold">${item.time}</span>
+                <button onclick="returnSingleStudent(${idx})" title="Đưa học sinh này trở lại vòng xoáy" class="text-xs text-slate-400 hover:text-cyan-300 px-1">
+                  <i class="fa-solid fa-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          `
+          )
+          .join('');
+      }
+    }
+
+    function returnSingleStudent(calledIdx) {
+      const removed = calledStudents.splice(calledIdx, 1)[0];
+      if (removed) {
+        activeStudents.push(removed.name);
+        document.getElementById('studentTextarea').value = activeStudents.join('\n');
+        rebuildVortexCards();
+        refreshRosterUI();
+        setStatusBanner(`Đã đưa "${removed.name}" trở lại vòng xoáy!`);
+      }
+    }
+
+    const canvas = document.getElementById('vortexCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let studentCards = [];
+    let bgDustParticles = [];
+    let chimneySmokeParticles = [];
+
+    // Trạng thái: 'IDLE' | 'ACCELERATING' | 'SUCKING' | 'MODAL_OPEN'
+    let vortexState = 'IDLE';
+    let angularSpeed = 0.009;
+    let stateTimer = 0;
+    let targetCardIndex = -1;
+    let vortexRotation = 0;
+
+    const neonPalette = [
+      '#38bdf8',
+      '#f43f5e',
+      '#facc15',
+      '#4ade80',
+      '#c084fc',
+      '#fb923c',
+      '#2dd4bf'
+    ];
+
+    function resizeCanvas() {
+      const stage = document.getElementById('mainStage');
+      canvas.width = stage.clientWidth;
+      canvas.height = stage.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Tạo các hạt bụi năng lượng nền cho lốc xoáy
+    function initBackgroundDust() {
+      bgDustParticles = [];
+      for (let i = 0; i < 85; i++) {
+        bgDustParticles.push({
+          angle: Math.random() * Math.PI * 2,
+          radius: 40 + Math.random() * 380,
+          speedOffset: 0.6 + Math.random() * 0.9,
+          size: 1.5 + Math.random() * 2.5,
+          color: neonPalette[i % neonPalette.length],
+          alpha: 0.25 + Math.random() * 0.55
+        });
+      }
+    }
+
+    function rebuildVortexCards() {
+      const total = activeStudents.length;
+      studentCards = activeStudents.map((name, i) => {
+        const ringIndex = i % 3;
+        const baseRadius = 125 + ringIndex * 68;
+        const angle = (i / Math.max(1, total)) * Math.PI * 2 + ringIndex * 0.4;
+        return {
+          name,
+          angle,
+          radius: baseRadius,
+          baseRadius,
+          x: 0,
+          y: 0,
+          scale: 1,
+          color: neonPalette[i % neonPalette.length],
+          trail: []
+        };
+      });
+    }
+
+    function emitChimneySmoke(x, y, amount = 35) {
+      for (let i = 0; i < amount; i++) {
+        chimneySmokeParticles.push({
+          x: x + (Math.random() - 0.5) * 50,
+          y: y + (Math.random() - 0.5) * 20,
+          vx: (Math.random() - 0.5) * 8,
+          vy: Math.random() * 5 + 1.5,
+          radius: 10 + Math.random() * 22,
+          alpha: 0.95,
+          color: i % 2 === 0 ? '#38bdf8' : '#f43f5e'
+        });
+      }
+    }
+
+    function triggerExtremeVortex() {
+      if (activeStudents.length === 0 || vortexState !== 'IDLE') return;
+
+      vortexState = 'ACCELERATING';
+      stateTimer = 0;
+      // Chọn ngẫu nhiên công bằng 1 học sinh trong danh sách còn lại
+      targetCardIndex = Math.floor(Math.random() * studentCards.length);
+
+      document.getElementById('spinButton').disabled = true;
+      document.getElementById('chimneyElement').classList.add('chimney-sucking');
+      setStatusBanner('🌪️ VÒNG XOÁY CỰC MẠNH ĐANG CUỐN TẤT CẢ HỌC SINH 12A4...');
+
+      playVortexAccelerateSound();
+    }
+
+    function renderVortexLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height * 0.57;
+      // Tọa độ miệng ống khói
+      const chimneyMouthX = canvas.width / 2;
+      const chimneyMouthY = 132;
+
+      vortexRotation += angularSpeed;
+
+      // 1. Vẽ tâm lốc xoáy và cột lực hút lên ống khói
+      if (vortexState === 'ACCELERATING' || vortexState === 'SUCKING') {
+        // Phễu lốc xoáy nối từ tâm lên miệng ống khói
+        const funnelGrad = ctx.createLinearGradient(centerX, centerY, chimneyMouthX, chimneyMouthY);
+        funnelGrad.addColorStop(0, 'rgba(56, 189, 248, 0.04)');
+        funnelGrad.addColorStop(0.5, 'rgba(244, 63, 94, 0.28)');
+        funnelGrad.addColorStop(1, 'rgba(56, 189, 248, 0.85)');
+
+        ctx.save();
+        ctx.beginPath();
+        const wobble = Math.sin(Date.now() * 0.025) * 18;
+        ctx.moveTo(centerX - 130, centerY);
+        ctx.quadraticCurveTo(centerX - 45 + wobble, (centerY + chimneyMouthY) / 2, chimneyMouthX - 65, chimneyMouthY);
+        ctx.lineTo(chimneyMouthX + 65, chimneyMouthY);
+        ctx.quadraticCurveTo(centerX + 45 + wobble, (centerY + chimneyMouthY) / 2, centerX + 130, centerY);
+        ctx.closePath();
+        ctx.fillStyle = funnelGrad;
+        ctx.fill();
+        ctx.restore();
+
+        // Vẽ các vòng xoáy năng lượng đồng tâm
+        for (let r = 45; r <= 340; r += 42) {
+          ctx.beginPath();
+          const dynamicR = r + Math.sin(Date.now() * 0.02 + r) * 10;
+          ctx.ellipse(centerX, centerY, dynamicR, dynamicR * 0.62, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = r % 84 === 0 ? 'rgba(244, 63, 94, 0.28)' : 'rgba(56, 189, 248, 0.22)';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+      } else {
+        // Vòng quỹ đạo nhẹ khi ở trạng thái nghỉ
+        for (let r = 125; r <= 270; r += 68) {
+          ctx.beginPath();
+          ctx.ellipse(centerX, centerY, r, r * 0.62, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      // 2. Vẽ các hạt bụi lốc xoáy
+      bgDustParticles.forEach(d => {
+        d.angle += angularSpeed * d.speedOffset * 1.4;
+        const dx = centerX + Math.cos(d.angle) * d.radius;
+        const dy = centerY + Math.sin(d.angle) * (d.radius * 0.62);
+        ctx.beginPath();
+        ctx.arc(dx, dy, d.size, 0, Math.PI * 2);
+        ctx.fillStyle = d.color;
+        ctx.globalAlpha = d.alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      // 3. Cập nhật gia tốc góc theo trạng thái
+      if (vortexState === 'IDLE') {
+        angularSpeed += (0.008 - angularSpeed) * 0.1;
+      } else if (vortexState === 'ACCELERATING') {
+        stateTimer += 1 / 60;
+        // Gia tốc cực mạnh lên 0.34 rad/frame
+        angularSpeed = 0.015 + Math.pow(stateTimer / 2.8, 2.4) * 0.33;
+
+        if (stateTimer >= 2.85) {
+          vortexState = 'SUCKING';
+          stateTimer = 0;
+          setStatusBanner('🔥 ỐNG KHÓI ĐANG HÚT MẠNH 1 HỌC SINH LÊN BẢNG!');
+        }
+      } else if (vortexState === 'SUCKING') {
+        stateTimer += 1 / 60;
+        angularSpeed = 0.28;
+      }
+
+      // 4. Cập nhật và vẽ từng thẻ tên học sinh
+      studentCards.forEach((card, index) => {
+        card.angle += angularSpeed;
+
+        if (vortexState === 'ACCELERATING') {
+          // Lốc xoáy ép dần các thẻ tên vào tâm trước khi hút
+          const squeeze = 1 - Math.min(stateTimer / 3.8, 0.58);
+          card.radius = card.baseRadius * squeeze;
+          card.x = centerX + Math.cos(card.angle) * card.radius;
+          card.y = centerY + Math.sin(card.angle) * (card.radius * 0.62);
+          card.scale = 1 + Math.sin(card.angle) * 0.12;
+        } else if (vortexState === 'SUCKING') {
+          if (index === targetCardIndex) {
+            // Học sinh được chọn bị xoáy hút thẳng vào miệng ống khói
+            const p = Math.min(stateTimer / 1.35, 1);
+            const spiralRadius = card.radius * (1 - p);
+            const currentYCenter = centerY + (chimneyMouthY - centerY) * Math.pow(p, 1.45);
+
+            card.x = centerX + Math.cos(card.angle * 2.1) * spiralRadius;
+            card.y = currentYCenter + Math.sin(card.angle * 2.1) * (spiralRadius * 0.35);
+
+            // Phóng to lúc đầu rồi thu nhỏ chui tọt vào miệng ống khói
+            card.scale = p < 0.4 ? 1.45 : 1.45 * (1 - (p - 0.4) / 0.62);
+
+            if (Math.random() < 0.65) {
+              emitChimneySmoke(card.x, card.y, 2);
+            }
+
+            if (p >= 1) {
+              // Đã bị hút hoàn toàn vào ống khói
+              currentSelectedStudent = card.name;
+              vortexState = 'MODAL_OPEN';
+              playChimneyCaptureSound();
+              emitChimneySmoke(chimneyMouthX, chimneyMouthY + 12, 55);
+              setTimeout(() => {
+                openCalledStudentModal(currentSelectedStudent);
+              }, 380);
+            }
+          } else {
+            // Các học sinh còn lại dạt nhẹ ra vòng ngoài
+            card.radius += (card.baseRadius * 1.15 - card.radius) * 0.08;
+            card.x = centerX + Math.cos(card.angle) * card.radius;
+            card.y = centerY + Math.sin(card.angle) * (card.radius * 0.62);
+            card.scale = 0.92;
+          }
+        } else {
+          // IDLE
+          card.radius += (card.baseRadius - card.radius) * 0.08;
+          card.x = centerX + Math.cos(card.angle) * card.radius;
+          card.y = centerY + Math.sin(card.angle) * (card.radius * 0.62);
+          card.scale = 1 + Math.sin(card.angle) * 0.1;
+        }
+
+        // Lưu vệt sáng khi quay cực nhanh
+        if (vortexState === 'ACCELERATING' || vortexState === 'SUCKING') {
+          card.trail.push({ x: card.x, y: card.y });
+          if (card.trail.length > 6) card.trail.shift();
+        } else {
+          card.trail = [];
+        }
+
+        // Vẽ vệt sáng (Motion Trail)
+        if (card.trail.length > 1) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(card.trail[0].x, card.trail[0].y);
+          for (let t = 1; t < card.trail.length; t++) {
+            ctx.lineTo(card.trail[t].x, card.trail[t].y);
+          }
+          ctx.strokeStyle = card.color;
+          ctx.lineWidth = 4;
+          ctx.globalAlpha = 0.35;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Vẽ viên nang tên học sinh
+        if (card.scale > 0.05) {
+          ctx.save();
+          ctx.translate(card.x, card.y);
+          ctx.scale(card.scale, card.scale);
+
+          const isTargetSucking = vortexState === 'SUCKING' && index === targetCardIndex;
+          ctx.font = isTargetSucking ? '900 18px Montserrat, sans-serif' : '700 15px Montserrat, sans-serif';
+          const textW = ctx.measureText(card.name).width;
+          const boxW = textW + 34;
+          const boxH = isTargetSucking ? 42 : 36;
+
+          ctx.shadowColor = isTargetSucking ? '#facc15' : card.color;
+          ctx.shadowBlur = isTargetSucking ? 30 : vortexState !== 'IDLE' ? 16 : 8;
+
+          ctx.fillStyle = isTargetSucking ? '#be123c' : 'rgba(15, 23, 42, 0.92)';
+          ctx.strokeStyle = isTargetSucking ? '#fde047' : card.color;
+          ctx.lineWidth = isTargetSucking ? 3 : 2;
+
+          ctx.beginPath();
+          ctx.roundRect(-boxW / 2, -boxH / 2, boxW, boxH, boxH / 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(card.name, 0, 1);
+
+          ctx.restore();
+        }
+      });
+
+      // 5. Vẽ hiệu ứng khói nổ tại miệng ống khói
+      for (let i = chimneySmokeParticles.length - 1; i >= 0; i--) {
+        const sp = chimneySmokeParticles[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.radius += 0.7;
+        sp.alpha -= 0.024;
+
+        if (sp.alpha <= 0) {
+          chimneySmokeParticles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.radius, 0, Math.PI * 2);
+        ctx.fillStyle = sp.color;
+        ctx.globalAlpha = sp.alpha;
+        ctx.shadowColor = sp.color;
+        ctx.shadowBlur = 18;
+        ctx.fill();
+        ctx.restore();
+      }
+
+      requestAnimationFrame(renderVortexLoop);
+    }
+
+    function openCalledStudentModal(studentName) {
+      document.getElementById('chimneyElement').classList.remove('chimney-sucking');
+      document.getElementById('calledStudentDisplay').textContent = studentName;
+      resetTimer();
+      const modal = document.getElementById('calledModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCalledModal() {
+      resetTimer();
+      const modal = document.getElementById('calledModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Loại học sinh vừa dò ra khỏi vòng xoáy
+    function removeCurrentStudentFromPool() {
+      if (!currentSelectedStudent) return;
+      const idx = activeStudents.indexOf(currentSelectedStudent);
+      if (idx !== -1) {
+        activeStudents.splice(idx, 1);
+      }
+      const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      calledStudents.unshift({
+        name: currentSelectedStudent,
+        time: nowStr
+      });
+
+      // Cập nhật lại ô danh sách để giáo viên dễ quan sát
+      document.getElementById('studentTextarea').value = activeStudents.join('\n');
+    }
+
+    // Nút 1: Hoàn thành & Loại tên khỏi vòng xoáy
+    function confirmRemoveOnly() {
+      const removedName = currentSelectedStudent;
+      removeCurrentStudentFromPool();
+      closeCalledModal();
+      vortexState = 'IDLE';
+      rebuildVortexCards();
+      refreshRosterUI();
+
+      if (activeStudents.length > 0) {
+        setStatusBanner(`Đã loại "${removedName}" khỏi vòng xoáy. Còn ${activeStudents.length} học sinh!`);
+      } else {
+        setStatusBanner('🎉 Đã gọi hết toàn bộ học sinh lớp 12A4 trong danh sách!');
+      }
+    }
+
+    // Nút 2: Loại tên học sinh vừa dò & Lập tức xoáy hút học sinh tiếp theo
+    function confirmRemoveAndSpinNext() {
+      removeCurrentStudentFromPool();
+      closeCalledModal();
+      vortexState = 'IDLE';
+      rebuildVortexCards();
+      refreshRosterUI();
+
+      if (activeStudents.length > 0) {
+        setTimeout(() => {
+          triggerExtremeVortex();
+        }, 250);
+      } else {
+        setStatusBanner('🎉 Đã gọi hết toàn bộ học sinh lớp 12A4 trong danh sách!');
+      }
+    }
+
+    // Nút 3: Giữ lại tên trong vòng xoáy (trường hợp học sinh vắng mặt)
+    function keepStudentInVortex() {
+      const keptName = currentSelectedStudent;
+      closeCalledModal();
+      vortexState = 'IDLE';
+      rebuildVortexCards();
+      refreshRosterUI();
+      setStatusBanner(`Đã giữ lại tên "${keptName}" trong vòng xoáy.`);
+    }
+
+    // Khởi chạy ứng dụng khi tải trang
+    window.onload = function () {
+      resizeCanvas();
+      initBackgroundDust();
+      applyRosterFromInput();
+      renderVortexLoop();
+    };
+  </script>
+</body>
+</html>
